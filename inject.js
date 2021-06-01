@@ -124,11 +124,13 @@ function putTextOverEl(el, number) {
 
   const numberEl = document.createElement('div');
   const textSpan = document.createElement('div');
+  textSpan.style =
+    'background:rgb(255, 247, 133);padding:2px;color:black;border-width:1px;border-style:solid;border-color:rgb(227, 190, 35);';
   textSpan.innerText = number;
   numberEl.appendChild(textSpan);
   numberEl.width = width;
   numberEl.height = height;
-  numberEl.style = `position:absolute;display:flex;justify-content:center;align-items:center;font-size:30px;font-weight:700;color:red;z-index:100;width:${width}px;height:${height}px`;
+  numberEl.style = `position:absolute;display:flex;justify-content:center;align-items:center;font-size:24px;font-weight:700;color:red;z-index:100;width:${width}px;height:${height}px`;
   numberEl.style.top = `${elPos.top}px`;
   numberEl.style.left = `${elPos.left}px`;
   numberEl.setAttribute('data-special-active-element', 'chrome-extension');
@@ -194,6 +196,16 @@ function clickCardCreatorInSelectedCardColumn() {
   return null;
 }
 
+function openAssigneeTool() {
+  const assigneeDropdownEl = document.querySelector(
+    '[data-sel-toolname="assignee_id"]'
+  );
+
+  if (assigneeDropdownEl) {
+    assigneeDropdownEl.click();
+  }
+}
+
 document.addEventListener('keydown', e => {
   if (!inBoardContext()) {
     return;
@@ -205,8 +217,9 @@ document.addEventListener('keydown', e => {
     return;
   }
 
+  console.log('event', e);
   // handle single key strokes, without any modifier keys
-  if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+  if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
     // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
     // we don't want the normal key bindings to work
     if (activeElements) {
@@ -236,6 +249,11 @@ document.addEventListener('keydown', e => {
           highlightCardCreators();
         }
       }
+    }
+  } else if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (e.key === '@') {
+      e.preventDefault();
+      openAssigneeTool();
     }
   }
 });
