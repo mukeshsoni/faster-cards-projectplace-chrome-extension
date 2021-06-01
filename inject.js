@@ -95,10 +95,6 @@ function cardsInViewport() {
 function isCardElementSelected(cardEl) {
   // TODO: This is a super bad way to find if we change the default background color some day
   // return false;
-  console.log(
-    'background color',
-    window.getComputedStyle(cardEl).backgroundColor
-  );
   return !window
     .getComputedStyle(cardEl)
     .backgroundColor.includes('rgb(255, 255, 255)');
@@ -180,7 +176,6 @@ function getSelectedCard() {
 
 function clickCardCreatorInSelectedCardColumn() {
   const selectedCard = getSelectedCard();
-  console.log({ selectedCard }, selectedCard.textContent);
   // traverse up and find the li
   // traverse the siblings backward until you hit a div with data-sel-card-creator attribute
   const currentEl = selectedCard.parentElement;
@@ -196,13 +191,106 @@ function clickCardCreatorInSelectedCardColumn() {
   return null;
 }
 
+function openCurtain() {
+  document.querySelector('button.pp-curtain__btn').click();
+}
+
 function openAssigneeTool() {
-  const assigneeDropdownEl = document.querySelector(
+  let assigneeDropdownEl = document.querySelector(
     '[data-sel-toolname="assignee_id"]'
   );
 
   if (assigneeDropdownEl) {
     assigneeDropdownEl.click();
+  } else {
+    if (isAnyCardOnPageSelected()) {
+      // the assignee tool might be hidden in the curtain. open the curtain first
+      // The cruel part is that the stuff inside the curtain is still in DOM and opens up from inside the closed
+      // curtain
+      openCurtain();
+      assigneeDropdownEl = document.querySelector(
+        '[data-sel-toolname="assignee_id"]'
+      );
+      if (assigneeDropdownEl) {
+        assigneeDropdownEl.click();
+      }
+    }
+  }
+}
+
+function getColumnNames() {
+  return Array.from(document.querySelectorAll('[data-sel-column-header]')).map(
+    el => {
+      const nameInHeader = el.textContent;
+      const indexOfCount = nameInHeader.search(/\([\d]+\).*$/);
+      return nameInHeader.slice(0, indexOfCount).trim();
+    }
+  );
+}
+
+function getSelectedCardColumnName() {
+  const statusDropdownEl = document.querySelector(
+    '[data-sel-dropdown="status"]'
+  );
+
+  if (statusDropdownEl) {
+    return statusDropdownEl.firstElementChild.textContent;
+  }
+
+  return null;
+}
+
+function triggerMouseEvent(node, eventType) {
+  var clickEvent = document.createEvent('MouseEvents');
+  clickEvent.initEvent(eventType, true, false);
+  node.dispatchEvent(clickEvent);
+}
+
+function openColumnSelectorDropdown() {
+  const statusDropdownEl = document.querySelector(
+    '[data-sel-dropdown="status"]'
+  );
+
+  if (statusDropdownEl) {
+    // statusDropdownEl.firstElementChild.click();
+    // statusDropdownEl.firstChild.onmouseup();
+    triggerMouseEvent(statusDropdownEl.firstElementChild, 'click');
+  }
+}
+
+function moveCardToPrevColumn() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    const columnNames = getColumnNames();
+
+    const currentColumnName = getSelectedCardColumnName();
+    const existingColumnIndex = columnNames.findIndex(
+      cn => cn === currentColumnName
+    );
+    if (existingColumnIndex > 0) {
+      const columnNameToMoveTo = columnNames[existingColumnIndex - 1];
+
+      openColumnSelectorDropdown();
+    }
+  }
+}
+
+function moveCardToNextColumn() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    const columnNames = getColumnNames();
+
+    const currentColumnName = getSelectedCardColumnName();
+    const existingColumnIndex = columnNames.findIndex(
+      cn => cn === currentColumnName
+    );
+    if (existingColumnIndex < columnNames.length - 1) {
+      const columnNameToMoveTo = columnNames[existingColumnIndex + 1];
+
+      openColumnSelectorDropdown();
+    }
   }
 }
 
@@ -213,7 +301,6 @@ document.addEventListener('keydown', e => {
 
   // we don't want to interrupt regular input text
   if (activeElementIsAnInputElement()) {
-    console.log('active element seems like an anput', document.activeElement);
     return;
   }
 
@@ -251,9 +338,17 @@ document.addEventListener('keydown', e => {
       }
     }
   } else if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    // pressing '@' will open the assignee dropdown
     if (e.key === '@') {
       e.preventDefault();
       openAssigneeTool();
+      //
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      moveCardToNextColumn();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      moveCardToPrevColumn();
     }
   }
 });
