@@ -384,6 +384,27 @@ function selectCardInPreviousColumn() {
   }
 }
 
+function getDetailsPaneWrapper() {
+  return document.querySelector('[data-testid="pp-details-pane"]');
+}
+
+function clickDetailsPaneCloseButton() {
+  const detailsPaneWrapper = getDetailsPaneWrapper();
+
+  if (detailsPaneWrapper) {
+    detailsPaneWrapper.querySelector('i[title="Close"]').click();
+  }
+}
+
+// deselect any card, if there's a selected card
+function deselectCard() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    clickDetailsPaneCloseButton();
+  }
+}
+
 document.addEventListener('keydown', e => {
   if (!inBoardContext()) {
     return;
@@ -438,6 +459,9 @@ document.addEventListener('keydown', e => {
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         selectCardInPreviousColumn();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        deselectCard();
       }
     }
   } else if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
