@@ -159,19 +159,24 @@ function clearActiveElementOverlays() {
 }
 
 function isAnyCardOnPageSelected() {
-  return /card\/[\d]+$/.test(window.location.href);
+  return /card\/[\d]+(,[\d]+)*$/.test(window.location.href);
 }
 
-function getSelectedCard() {
+function getSelectedCards() {
   if (!isAnyCardOnPageSelected()) {
-    return null;
+    return [];
   }
 
   const allCards = allCardsOnPage();
 
-  return allCards.find(cardEl => {
+  // If multiple cards are selected, we will return the last one
+  return allCards.filter(cardEl => {
     return isCardElementSelected(cardEl);
   });
+}
+
+function getSelectedCard() {
+  return getSelectedCards()[0];
 }
 
 function clickCardCreatorInSelectedCardColumn() {
@@ -240,10 +245,12 @@ function getSelectedCardColumnName() {
   return null;
 }
 
-function triggerMouseEvent(node, eventType) {
-  var clickEvent = document.createEvent('MouseEvents');
-  clickEvent.initEvent(eventType, true, false);
-  node.dispatchEvent(clickEvent);
+// TODO: initEvent is deprected
+// use Event constructors
+function triggerMouseEvent(node, eventType, options = {}) {
+  console.log('dispatching event with options', { ...options, bubbles: true });
+  const mouseEvent = new MouseEvent(eventType, { ...options, bubbles: true });
+  node.dispatchEvent(mouseEvent);
 }
 
 function getStatusDropdown() {
@@ -254,9 +261,7 @@ function openColumnSelectorDropdown() {
   const statusDropdownEl = getStatusDropdown();
 
   if (statusDropdownEl) {
-    // statusDropdownEl.firstElementChild.click();
-    // statusDropdownEl.firstChild.onmouseup();
-    triggerMouseEvent(statusDropdownEl.firstElementChild, 'click');
+    statusDropdownEl.firstElementChild.click();
   }
 }
 
@@ -319,27 +324,55 @@ function moveCardToNextColumn() {
   }
 }
 
-function selectCardBelowSelectedCard() {
-  const selectedCard = getSelectedCard();
+function getPrevCard() {
+  const selectedCards = getSelectedCards();
 
-  if (selectedCard) {
-    const currentEl = selectedCard.parentElement;
-    const nextCard = currentEl.nextElementSibling;
-    if (nextCard) {
-      nextCard.firstElementChild.click();
+  if (selectedCards.length > 0) {
+    const selectedCard = selectedCards[0];
+
+    if (selectedCard) {
+      const currentEl = selectedCard.parentElement;
+      if (
+        currentEl.previousElementSibling &&
+        currentEl.previousElementSibling.tagName === 'LI'
+      ) {
+        return currentEl.previousElementSibling.firstElementChild;
+      }
     }
+  }
+  return null;
+}
+
+function getNextCard() {
+  const selectedCards = getSelectedCards();
+
+  if (selectedCards.length > 0) {
+    const selectedCard = selectedCards[selectedCards.length - 1];
+    if (selectedCard) {
+      const currentEl = selectedCard.parentElement;
+      if (
+        currentEl.nextElementSibling &&
+        currentEl.nextElementSibling.tagName === 'LI'
+      ) {
+        return currentEl.nextElementSibling.firstElementChild;
+      }
+    }
+  }
+  return null;
+}
+
+function selectCardBelowSelectedCard() {
+  const nextCard = getNextCard();
+
+  if (nextCard) {
+    nextCard.click();
   }
 }
 
 function selectCardAboveSelectedCard() {
-  const selectedCard = getSelectedCard();
-
-  if (selectedCard) {
-    const currentEl = selectedCard.parentElement;
-    const previousCard = currentEl.previousElementSibling;
-    if (previousCard) {
-      previousCard.firstElementChild.click();
-    }
+  const previousCard = getPrevCard();
+  if (previousCard) {
+    previousCard.click();
   }
 }
 
@@ -405,6 +438,54 @@ function deselectCard() {
   }
 }
 
+let prefixKey = null;
+
+function clearPrefixKey() {
+  prefixKey = null;
+}
+
+function saveAsPrefixKey(key) {
+  prefixKey = key;
+  // clear the prefix key after 2 seconds in case user pressed it by mistake
+  setTimeout(clearPrefixKey, 2000);
+}
+
+function assignCardToMe() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    // TODO;
+  }
+}
+
+function multiSelectNextCard() {
+  const nextCard = getNextCard();
+
+  if (nextCard) {
+    triggerMouseEvent(nextCard, 'click', { metaKey: true });
+  }
+}
+
+function multiSelectPreviousCard() {
+  const prevCard = getPrevCard();
+
+  if (prevCard) {
+    triggerMouseEvent(prevCard, 'click', { metaKey: true });
+  }
+}
+
+// if the direction user was moving was down and they selected multiple cards and want to unselect the last card, they
+// will press the up key and think the last selected card will be deselected. But shift-up for us means
+// multiSelectPreviousCard. Which means we have to remember the direction user is moving in multiselect at a particular
+// point in time
+function handleMultiSelection(e) {
+  if (e.key === 'ArrowDown') {
+    multiSelectNextCard();
+  } else if (e.key === 'ArrowUp') {
+    multiSelectPreviousCard();
+  }
+}
+
 document.addEventListener('keydown', e => {
   if (!inBoardContext()) {
     return;
@@ -427,6 +508,16 @@ document.addEventListener('keydown', e => {
       }
 
       clearActiveElementOverlays();
+      // if user is trying out some combination keys like `at` or `gi` etc.
+    } else if (prefixKey !== null) {
+      // TODO
+      // am -> assign to me
+      if (prefixKey === 'a' && e.key === 'm') {
+        e.preventDefault();
+        assignCardToMe();
+      }
+
+      clearPrefixKey();
     } else {
       if (e.key === 'f') {
         // TODO: This interferes with other actions in an indeterministic way. Will switch off for now.
@@ -447,21 +538,26 @@ document.addEventListener('keydown', e => {
         } else {
           highlightCardCreators();
         }
-      } else if (e.key === 'ArrowDown') {
+      } else if (e.key === 'ArrowDown' || e.key === 'j') {
         e.preventDefault();
         selectCardBelowSelectedCard();
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
         e.preventDefault();
         selectCardAboveSelectedCard();
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === 'ArrowRight' || e.key === 'l') {
         e.preventDefault();
         selectCardInNextColumn();
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === 'ArrowLeft' || e.key === 'h') {
         e.preventDefault();
         selectCardInPreviousColumn();
       } else if (e.key === 'Escape') {
         e.preventDefault();
         deselectCard();
+      } else {
+        // for combination keys like `at` to add a tag
+        // we will save a key and wait for the next one
+        // we will clear the prefix key after some milliseconds or seconds
+        saveAsPrefixKey(e.key);
       }
     }
   } else if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -476,6 +572,9 @@ document.addEventListener('keydown', e => {
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault();
       moveCardToPrevColumn();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      handleMultiSelection(e);
     }
   }
 });
