@@ -5,7 +5,12 @@
   "manifest_version": 3,
   "content_scripts": [
     {
-      "matches": ["*"],
+      "matches": [
+        "https://service.projectplace.com/*",
+        "https://local.rnd.projectplace.com/*",
+        "https://https://test-se.rnd.projectplace.com//*",
+        "https://https://test-in.rnd.projectplace.com//*"
+      ],
       "js": ["inject.js"]
     }
   ],

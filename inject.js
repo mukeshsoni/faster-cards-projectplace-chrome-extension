@@ -159,6 +159,8 @@ function clearActiveElementOverlays() {
 }
 
 function isAnyCardOnPageSelected() {
+  // TODO: Maybe change logic to check if details pane is open or not
+  // That's enough
   return /card\/[\d]+(,[\d]+)*$/.test(window.location.href);
 }
 
@@ -200,10 +202,12 @@ function openCurtain() {
   document.querySelector('button.pp-curtain__btn').click();
 }
 
+function getAssigneeDropdownEl() {
+  return document.querySelector('[data-sel-toolname="assignee_id"]');
+}
+
 function openAssigneeTool() {
-  let assigneeDropdownEl = document.querySelector(
-    '[data-sel-toolname="assignee_id"]'
-  );
+  let assigneeDropdownEl = getAssigneeDropdownEl();
 
   if (assigneeDropdownEl) {
     assigneeDropdownEl.click();
@@ -453,6 +457,23 @@ function assignCardToMe() {
 
   if (selectedCard) {
     // TODO;
+    openAssigneeTool();
+    let assigneeDropdownEl = getAssigneeDropdownEl();
+    setTimeout(() => {
+      if (assigneeDropdownEl) {
+        const listContainer = assigneeDropdownEl.querySelector(
+          '.pp-simplecombobox__list'
+        );
+        console.log({ listContainer });
+        const items = Array.from(listContainer.querySelectorAll('li')).filter(
+          el => !el.querySelector('i.icon-wrong')
+        );
+        console.log({ items });
+        if (items.length > 0) {
+          items[0].click();
+        }
+      }
+    }, 500);
   }
 }
 
@@ -477,9 +498,9 @@ function multiSelectPreviousCard() {
 // multiSelectPreviousCard. Which means we have to remember the direction user is moving in multiselect at a particular
 // point in time
 function handleMultiSelection(e) {
-  if (e.key === 'ArrowDown') {
+  if (e.key === 'ArrowDown' || e.key === 'J') {
     multiSelectNextCard();
-  } else if (e.key === 'ArrowUp') {
+  } else if (e.key === 'ArrowUp' || e.key === 'K') {
     multiSelectPreviousCard();
   }
 }
@@ -503,6 +524,17 @@ function selectPoints(points) {
         }
       }, 30);
     }
+  }
+}
+
+function clickDeleteButton() {
+  const detailsPaneWrapper = getDetailsPaneWrapper();
+  if (detailsPaneWrapper) {
+    // TODO: This click also doesn't work. Anything using dropdown sucks.
+    detailsPaneWrapper
+      .querySelector('.pp-u-details-pane__more-menu')
+      .querySelector('.pp-dropdown__trigger')
+      .click();
   }
 }
 
@@ -573,6 +605,9 @@ document.addEventListener('keydown', e => {
       } else if (e.key === 'Escape') {
         e.preventDefault();
         deselectCard();
+      } else if (e.key === 'Del') {
+        e.preventDefault();
+        clickDeleteButton();
       } else if (!Number.isNaN(parseInt(e.key, 10))) {
         e.preventDefault();
         selectPoints(parseInt(e.key, 10));
@@ -589,13 +624,18 @@ document.addEventListener('keydown', e => {
       e.preventDefault();
       openAssigneeTool();
       //
-    } else if (e.key === 'ArrowRight') {
+    } else if (e.key === 'ArrowRight' || e.key === 'l') {
       e.preventDefault();
       moveCardToNextColumn();
-    } else if (e.key === 'ArrowLeft') {
+    } else if (e.key === 'ArrowLeft' || e.key === 'h') {
       e.preventDefault();
       moveCardToPrevColumn();
-    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    } else if (
+      e.key === 'ArrowDown' ||
+      e.key === 'ArrowUp' ||
+      e.key === 'J' ||
+      e.key === 'K'
+    ) {
       e.preventDefault();
       handleMultiSelection(e);
     }
