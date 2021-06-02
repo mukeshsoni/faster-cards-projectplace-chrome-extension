@@ -1,3 +1,7 @@
+function findParentBySelector(elm, selector) {
+  return elm.closest(selector);
+}
+
 function elementInViewport(el) {
   var top = el.offsetTop;
   var left = el.offsetLeft;
@@ -165,6 +169,8 @@ function isAnyCardOnPageSelected() {
   // TODO: Maybe change logic to check if details pane is open or not
   // That's enough
   return /card\/[\d]+(,[\d]+)*$/.test(window.location.href);
+  // can't use it because we keep the details pane in DOM all the time. Only remove it from viewport.
+  // return !!getDetailsPaneWrapper();
 }
 
 function getSelectedCards() {
@@ -463,6 +469,7 @@ function clearPrefixKey() {
 }
 
 function saveAsPrefixKey(key) {
+  console.log('saveAsPrefixKey', key);
   prefixKey = key;
   // clear the prefix key after 2 seconds in case user pressed it by mistake
   setTimeout(clearPrefixKey, 2000);
@@ -613,6 +620,21 @@ function addChecklistItem() {
   }
 }
 
+function toggleSwimlane() {
+  // only makes sense if there's some card already selected
+  // TODO: What do we do if we want to open a swimlane
+  if (isAnyCardOnPageSelected()) {
+    const selectedCard = getSelectedCard();
+    const swimlaneEl = findParentBySelector(
+      selectedCard,
+      '[data-sel-swimlane-body]'
+    );
+    if (swimlaneEl) {
+      swimlaneEl.previousElementSibling.click();
+    }
+  }
+}
+
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
@@ -639,12 +661,20 @@ function start() {
 
         clearActiveElementOverlays();
         // if user is trying out some combination keys like `at` or `gi` etc.
+        // TODO: Should instead keep every first key in prefixKey and wait for some time for the second key press
+        // if nothing comes, try the single key mappings
+        // E.g. ct can be used for create tag when c and t are pressed together very fast
+        // Else, if only c was pressed, we wait for 500ms and then do whatever we should for 'c' keypress
       } else if (prefixKey !== null) {
         // TODO
         // am -> assign to me
         if (prefixKey === 'a' && e.key === 'm') {
           e.preventDefault();
           assignCardToMe();
+        } else if (prefixKey === 't' && e.key === 's') {
+          // ts for toggle swimlane
+          e.preventDefault();
+          toggleSwimlane();
         }
 
         clearPrefixKey();
@@ -663,9 +693,10 @@ function start() {
         } else if (e.key === 's') {
           e.preventDefault();
           highlightCardsInViewport();
-        } else if (e.key === 't') {
-          e.preventDefault();
-          addTag();
+          // TODO: don't use 't' for tag since we are using ts for toggle swimlane
+          // } else if (e.key === 't') {
+          // e.preventDefault();
+          // addTag();
         } else if (e.key === 'c') {
           e.preventDefault();
           if (isAnyCardOnPageSelected()) {
@@ -728,6 +759,9 @@ function start() {
 
 console.log('Awesome extension coming to party!');
 setTimeout(start, 1);
+
+// TODO
+// 1. Adding 'f' which shows all clickable areas like buttons and links on the page
 
 // Bugs
 // 1. The up/down arrows don't work across swimlanes
