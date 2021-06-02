@@ -19,7 +19,10 @@ function elementInViewport(el) {
 }
 
 function inBoardContext() {
-  return document.querySelector('[data-id="boards"]');
+  return (
+    document.querySelector('[data-id="boards"]') ||
+    document.querySelector('.boardsContainer')
+  );
 }
 
 function activeElementIsAnInputElement() {
@@ -538,106 +541,113 @@ function clickDeleteButton() {
   }
 }
 
-document.addEventListener('keydown', e => {
-  if (!inBoardContext()) {
-    return;
-  }
+function start() {
+  console.log('start');
+  document.addEventListener('keydown', e => {
+    if (!inBoardContext()) {
+      console.log('Not in board context');
+      return;
+    }
 
-  // we don't want to interrupt regular input text
-  if (activeElementIsAnInputElement()) {
-    return;
-  }
+    // we don't want to interrupt regular input text
+    if (activeElementIsAnInputElement()) {
+      return;
+    }
 
-  console.log('event', e);
-  // handle single key strokes, without any modifier keys
-  if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
-    // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
-    // we don't want the normal key bindings to work
-    if (activeElements) {
-      if (activeElements[e.key]) {
-        e.preventDefault();
-        activeElements[e.key].click();
-      }
-
-      clearActiveElementOverlays();
-      // if user is trying out some combination keys like `at` or `gi` etc.
-    } else if (prefixKey !== null) {
-      // TODO
-      // am -> assign to me
-      if (prefixKey === 'a' && e.key === 'm') {
-        e.preventDefault();
-        assignCardToMe();
-      }
-
-      clearPrefixKey();
-    } else {
-      if (e.key === 'f') {
-        // TODO: This interferes with other actions in an indeterministic way. Will switch off for now.
-        // e.preventDefault();
-        // toggleFilterSection();
-      } else if (e.key === '/') {
-        // focus search box
-        e.preventDefault();
-        focusSearchBox();
-      } else if (e.key === 's') {
-        e.preventDefault();
-        highlightCardsInViewport();
-      } else if (e.key === 'c') {
-        e.preventDefault();
-        if (isAnyCardOnPageSelected()) {
-          // TODO: If a card is already selected, press the + button in the same swimlane
-          clickCardCreatorInSelectedCardColumn();
-        } else {
-          highlightCardCreators();
+    console.log('event', e);
+    // handle single key strokes, without any modifier keys
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+      // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
+      // we don't want the normal key bindings to work
+      if (activeElements) {
+        if (activeElements[e.key]) {
+          e.preventDefault();
+          activeElements[e.key].click();
         }
-      } else if (e.key === 'ArrowDown' || e.key === 'j') {
-        e.preventDefault();
-        selectCardBelowSelectedCard();
-      } else if (e.key === 'ArrowUp' || e.key === 'k') {
-        e.preventDefault();
-        selectCardAboveSelectedCard();
-      } else if (e.key === 'ArrowRight' || e.key === 'l') {
-        e.preventDefault();
-        selectCardInNextColumn();
-      } else if (e.key === 'ArrowLeft' || e.key === 'h') {
-        e.preventDefault();
-        selectCardInPreviousColumn();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        deselectCard();
-      } else if (e.key === 'Del') {
-        e.preventDefault();
-        clickDeleteButton();
-      } else if (!Number.isNaN(parseInt(e.key, 10))) {
-        e.preventDefault();
-        selectPoints(parseInt(e.key, 10));
+
+        clearActiveElementOverlays();
+        // if user is trying out some combination keys like `at` or `gi` etc.
+      } else if (prefixKey !== null) {
+        // TODO
+        // am -> assign to me
+        if (prefixKey === 'a' && e.key === 'm') {
+          e.preventDefault();
+          assignCardToMe();
+        }
+
+        clearPrefixKey();
       } else {
-        // for combination keys like `at` to add a tag
-        // we will save a key and wait for the next one
-        // we will clear the prefix key after some milliseconds or seconds
-        saveAsPrefixKey(e.key);
+        if (e.key === 'f') {
+          // TODO: This interferes with other actions in an indeterministic way. Will switch off for now.
+          // e.preventDefault();
+          // toggleFilterSection();
+        } else if (e.key === '/') {
+          // focus search box
+          e.preventDefault();
+          focusSearchBox();
+        } else if (e.key === 's') {
+          e.preventDefault();
+          highlightCardsInViewport();
+        } else if (e.key === 'c') {
+          e.preventDefault();
+          if (isAnyCardOnPageSelected()) {
+            // TODO: If a card is already selected, press the + button in the same swimlane
+            clickCardCreatorInSelectedCardColumn();
+          } else {
+            highlightCardCreators();
+          }
+        } else if (e.key === 'ArrowDown' || e.key === 'j') {
+          e.preventDefault();
+          selectCardBelowSelectedCard();
+        } else if (e.key === 'ArrowUp' || e.key === 'k') {
+          e.preventDefault();
+          selectCardAboveSelectedCard();
+        } else if (e.key === 'ArrowRight' || e.key === 'l') {
+          e.preventDefault();
+          selectCardInNextColumn();
+        } else if (e.key === 'ArrowLeft' || e.key === 'h') {
+          e.preventDefault();
+          selectCardInPreviousColumn();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          deselectCard();
+        } else if (e.key === 'Del') {
+          e.preventDefault();
+          clickDeleteButton();
+        } else if (!Number.isNaN(parseInt(e.key, 10))) {
+          e.preventDefault();
+          selectPoints(parseInt(e.key, 10));
+        } else {
+          // for combination keys like `at` to add a tag
+          // we will save a key and wait for the next one
+          // we will clear the prefix key after some milliseconds or seconds
+          saveAsPrefixKey(e.key);
+        }
+      }
+    } else if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // pressing '@' will open the assignee dropdown
+      if (e.key === '@') {
+        e.preventDefault();
+        openAssigneeTool();
+        //
+      } else if (e.key === 'ArrowRight' || e.key === 'L') {
+        e.preventDefault();
+        moveCardToNextColumn();
+      } else if (e.key === 'ArrowLeft' || e.key === 'H') {
+        e.preventDefault();
+        moveCardToPrevColumn();
+      } else if (
+        e.key === 'ArrowDown' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'J' ||
+        e.key === 'K'
+      ) {
+        e.preventDefault();
+        handleMultiSelection(e);
       }
     }
-  } else if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    // pressing '@' will open the assignee dropdown
-    if (e.key === '@') {
-      e.preventDefault();
-      openAssigneeTool();
-      //
-    } else if (e.key === 'ArrowRight' || e.key === 'l') {
-      e.preventDefault();
-      moveCardToNextColumn();
-    } else if (e.key === 'ArrowLeft' || e.key === 'h') {
-      e.preventDefault();
-      moveCardToPrevColumn();
-    } else if (
-      e.key === 'ArrowDown' ||
-      e.key === 'ArrowUp' ||
-      e.key === 'J' ||
-      e.key === 'K'
-    ) {
-      e.preventDefault();
-      handleMultiSelection(e);
-    }
-  }
-});
+  });
+}
+
+console.log('Awesome extension coming to party!');
+setTimeout(start, 1);
