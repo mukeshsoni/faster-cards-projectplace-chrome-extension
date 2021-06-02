@@ -487,11 +487,9 @@ function assignCardToMe() {
         const listContainer = assigneeDropdownEl.querySelector(
           '.pp-simplecombobox__list'
         );
-        console.log({ listContainer });
         const items = Array.from(listContainer.querySelectorAll('li')).filter(
           el => !el.querySelector('i.icon-wrong')
         );
-        console.log({ items });
         if (items.length > 0) {
           items[0].click();
         }
@@ -574,13 +572,11 @@ function addTag() {
         const tagTool = planletTool.nextElementSibling;
 
         if (tagTool) {
-          // console.log({ planletTool, tagTool });
           tagTool.firstElementChild.click();
           setTimeout(() => {
             const toolAddButton = tagTool.querySelector(
               '[data-sel-btn-add-tag="true"]'
             );
-            console.log({ toolAddButton });
             toolAddButton.click();
           }, 200);
         }
@@ -648,7 +644,7 @@ function start() {
       return;
     }
 
-    console.log('event', e);
+    // console.log('event', e);
     // handle single key strokes, without any modifier keys
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
       // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
