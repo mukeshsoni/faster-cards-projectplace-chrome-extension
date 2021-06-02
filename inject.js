@@ -202,7 +202,12 @@ function clickCardCreatorInSelectedCardColumn() {
 }
 
 function openCurtain() {
-  document.querySelector('button.pp-curtain__btn').click();
+  const curtainContent = document.querySelector('.pp-curtain__content');
+
+  // only open if there is curtain content and it's height is 0
+  if (curtainContent && curtainContent.offsetHeight === 0) {
+    document.querySelector('button.pp-curtain__btn').click();
+  }
 }
 
 function getAssigneeDropdownEl() {
@@ -541,6 +546,65 @@ function clickDeleteButton() {
   }
 }
 
+function addTag() {
+  const detailsPaneWrapper = getDetailsPaneWrapper();
+  if (detailsPaneWrapper) {
+    openCurtain();
+
+    setTimeout(() => {
+      const planletTool = detailsPaneWrapper.querySelector(
+        '[data-sel-toolname="planlet_id"]'
+      );
+      if (planletTool) {
+        const tagTool = planletTool.nextElementSibling;
+
+        if (tagTool) {
+          // console.log({ planletTool, tagTool });
+          tagTool.firstElementChild.click();
+          setTimeout(() => {
+            const toolAddButton = tagTool.querySelector(
+              '[data-sel-btn-add-tag="true"]'
+            );
+            console.log({ toolAddButton });
+            toolAddButton.click();
+          }, 200);
+        }
+      }
+    }, 300);
+  }
+}
+
+function checklistAddButtonVisible() {
+  return document.querySelector('[data-sel-toolname="checklist"]');
+}
+
+function addChecklistItem() {
+  const detailsPaneWrapper = getDetailsPaneWrapper();
+  if (detailsPaneWrapper) {
+    openCurtain();
+
+    setTimeout(() => {
+      const labelTool = detailsPaneWrapper.querySelector(
+        '[data-sel-toolname="label"]'
+      );
+      if (labelTool) {
+        const checklistTool = labelTool.nextElementSibling;
+
+        if (checklistTool) {
+          if (!checklistAddButtonVisible()) {
+            checklistTool
+              .querySelector('.pp-block-tool')
+              .firstElementChild.click();
+          }
+          checklistTool
+            .querySelector('[data-sel-toolname="checklist"]')
+            .firstElementChild.firstElementChild.nextElementSibling.click();
+        }
+      }
+    });
+  }
+}
+
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
@@ -585,9 +649,15 @@ function start() {
           // focus search box
           e.preventDefault();
           focusSearchBox();
+        } else if (e.key === 'l') {
+          e.preventDefault();
+          addChecklistItem();
         } else if (e.key === 's') {
           e.preventDefault();
           highlightCardsInViewport();
+        } else if (e.key === 't') {
+          e.preventDefault();
+          addTag();
         } else if (e.key === 'c') {
           e.preventDefault();
           if (isAnyCardOnPageSelected()) {
@@ -629,7 +699,6 @@ function start() {
       if (e.key === '@') {
         e.preventDefault();
         openAssigneeTool();
-        //
       } else if (e.key === 'ArrowRight' || e.key === 'L') {
         e.preventDefault();
         moveCardToNextColumn();
