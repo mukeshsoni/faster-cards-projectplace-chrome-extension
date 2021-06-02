@@ -248,7 +248,6 @@ function getSelectedCardColumnName() {
 // TODO: initEvent is deprected
 // use Event constructors
 function triggerMouseEvent(node, eventType, options = {}) {
-  console.log('dispatching event with options', { ...options, bubbles: true });
   const mouseEvent = new MouseEvent(eventType, { ...options, bubbles: true });
   node.dispatchEvent(mouseEvent);
 }
@@ -279,7 +278,6 @@ function selectStatusFromDropdown(columnNameToMoveTo) {
       );
 
       if (dropdownItemToMoveTo) {
-        console.log('Found the dropdown element. going to click it');
         dropdownItemToMoveTo.click();
       }
     }
@@ -486,6 +484,28 @@ function handleMultiSelection(e) {
   }
 }
 
+function selectPoints(points) {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    const estimateTool = document.querySelector(
+      '[data-sel-toolname="estimate"]'
+    );
+    if (estimateTool) {
+      estimateTool.click();
+      // wait for the dropdown to open
+      setTimeout(() => {
+        const pointsEl = Array.from(estimateTool.querySelectorAll('li')).find(
+          el => el.textContent === `${points}`
+        );
+        if (pointsEl) {
+          pointsEl.click();
+        }
+      }, 30);
+    }
+  }
+}
+
 document.addEventListener('keydown', e => {
   if (!inBoardContext()) {
     return;
@@ -553,6 +573,9 @@ document.addEventListener('keydown', e => {
       } else if (e.key === 'Escape') {
         e.preventDefault();
         deselectCard();
+      } else if (!Number.isNaN(parseInt(e.key, 10))) {
+        e.preventDefault();
+        selectPoints(parseInt(e.key, 10));
       } else {
         // for combination keys like `at` to add a tag
         // we will save a key and wait for the next one
