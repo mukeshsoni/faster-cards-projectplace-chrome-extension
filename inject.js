@@ -396,14 +396,18 @@ function selectCardInNextColumn() {
 
   if (selectedCard) {
     const columnForCard = getColumnContainerForCard(selectedCard);
-    const nextColumn = columnForCard.nextElementSibling;
+    let nextColumn = columnForCard.nextElementSibling;
 
-    if (nextColumn) {
+    // what if the next column does not have any card? We should move on to the next column
+    while (nextColumn) {
       const firstCardInColumn = nextColumn.firstElementChild.querySelector(
         'li'
       );
       if (firstCardInColumn) {
         firstCardInColumn.firstElementChild.click();
+        break;
+      } else {
+        nextColumn = nextColumn.nextElementSibling;
       }
     }
   }
@@ -414,14 +418,18 @@ function selectCardInPreviousColumn() {
 
   if (selectedCard) {
     const columnForCard = getColumnContainerForCard(selectedCard);
-    const prevColumn = columnForCard.previousElementSibling;
+    let prevColumn = columnForCard.previousElementSibling;
 
-    if (prevColumn) {
+    // what if the prev column does not have any card? We should move on to the column before
+    while (prevColumn) {
       const firstCardInColumn = prevColumn.firstElementChild.querySelector(
         'li'
       );
       if (firstCardInColumn) {
         firstCardInColumn.firstElementChild.click();
+        break;
+      } else {
+        prevColumn = prevColumn.previousElementSibling;
       }
     }
   }
@@ -720,3 +728,7 @@ function start() {
 
 console.log('Awesome extension coming to party!');
 setTimeout(start, 1);
+
+// Bugs
+// 1. The up/down arrows don't work across swimlanes
+// 2. The right/left arrows don't work when they come across an empty column
