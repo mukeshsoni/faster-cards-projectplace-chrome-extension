@@ -246,15 +246,38 @@ function triggerMouseEvent(node, eventType) {
   node.dispatchEvent(clickEvent);
 }
 
+function getStatusDropdown() {
+  return document.querySelector('[data-sel-dropdown="status"]');
+}
+
 function openColumnSelectorDropdown() {
-  const statusDropdownEl = document.querySelector(
-    '[data-sel-dropdown="status"]'
-  );
+  const statusDropdownEl = getStatusDropdown();
 
   if (statusDropdownEl) {
     // statusDropdownEl.firstElementChild.click();
     // statusDropdownEl.firstChild.onmouseup();
     triggerMouseEvent(statusDropdownEl.firstElementChild, 'click');
+  }
+}
+
+function selectStatusFromDropdown(columnNameToMoveTo) {
+  const statusDropdownEl = getStatusDropdown();
+  if (statusDropdownEl) {
+    const dropdownContent = statusDropdownEl.querySelector(
+      '.pp-dropdown__content'
+    );
+
+    if (dropdownContent) {
+      const dropdownItems = dropdownContent.querySelectorAll('a');
+      const dropdownItemToMoveTo = Array.from(dropdownItems).find(itemEl =>
+        itemEl.textContent.includes(columnNameToMoveTo)
+      );
+
+      if (dropdownItemToMoveTo) {
+        console.log('Found the dropdown element. going to click it');
+        dropdownItemToMoveTo.click();
+      }
+    }
   }
 }
 
@@ -272,6 +295,7 @@ function moveCardToPrevColumn() {
       const columnNameToMoveTo = columnNames[existingColumnIndex - 1];
 
       openColumnSelectorDropdown();
+      selectStatusFromDropdown(columnNameToMoveTo);
     }
   }
 }
@@ -290,6 +314,7 @@ function moveCardToNextColumn() {
       const columnNameToMoveTo = columnNames[existingColumnIndex + 1];
 
       openColumnSelectorDropdown();
+      selectStatusFromDropdown(columnNameToMoveTo);
     }
   }
 }
