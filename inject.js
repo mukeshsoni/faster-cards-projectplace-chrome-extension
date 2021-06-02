@@ -319,6 +319,71 @@ function moveCardToNextColumn() {
   }
 }
 
+function selectCardBelowSelectedCard() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    const currentEl = selectedCard.parentElement;
+    const nextCard = currentEl.nextElementSibling;
+    if (nextCard) {
+      nextCard.firstElementChild.click();
+    }
+  }
+}
+
+function selectCardAboveSelectedCard() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    const currentEl = selectedCard.parentElement;
+    const previousCard = currentEl.previousElementSibling;
+    if (previousCard) {
+      previousCard.firstElementChild.click();
+    }
+  }
+}
+
+function getColumnContainerForCard(card) {
+  // TODO: Make this more robust by find something in parent with attribute of data-sel-column
+  return card.parentElement.parentElement.parentElement;
+}
+
+function selectCardInNextColumn() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    const columnForCard = getColumnContainerForCard(selectedCard);
+    const nextColumn = columnForCard.nextElementSibling;
+
+    if (nextColumn) {
+      const firstCardInColumn = nextColumn.firstElementChild.querySelector(
+        'li'
+      );
+      if (firstCardInColumn) {
+        firstCardInColumn.firstElementChild.click();
+      }
+    }
+  }
+}
+
+function selectCardInPreviousColumn() {
+  const selectedCard = getSelectedCard();
+
+  if (selectedCard) {
+    const columnForCard = getColumnContainerForCard(selectedCard);
+    const prevColumn = columnForCard.previousElementSibling;
+
+    if (prevColumn) {
+      const firstCardInColumn = prevColumn.firstElementChild.querySelector(
+        'li'
+      );
+      if (firstCardInColumn) {
+        firstCardInColumn.firstElementChild.click();
+      }
+    }
+  }
+}
+
 document.addEventListener('keydown', e => {
   if (!inBoardContext()) {
     return;
@@ -343,8 +408,9 @@ document.addEventListener('keydown', e => {
       clearActiveElementOverlays();
     } else {
       if (e.key === 'f') {
-        e.preventDefault();
-        toggleFilterSection();
+        // TODO: This interferes with other actions in an indeterministic way. Will switch off for now.
+        // e.preventDefault();
+        // toggleFilterSection();
       } else if (e.key === '/') {
         // focus search box
         e.preventDefault();
@@ -360,6 +426,18 @@ document.addEventListener('keydown', e => {
         } else {
           highlightCardCreators();
         }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectCardBelowSelectedCard();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectCardAboveSelectedCard();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        selectCardInNextColumn();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        selectCardInPreviousColumn();
       }
     }
   } else if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
