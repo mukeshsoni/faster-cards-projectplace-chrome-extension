@@ -208,10 +208,12 @@ function clickCardCreatorInSelectedCardColumn() {
 }
 
 function openCurtain() {
-  const curtainContent = document.querySelector('.pp-curtain__content');
+  const curtainButtonCollapsed = document.querySelector(
+    '.pp-curtain .pp-curtain__btn.pp-curtain__btn--collapsed'
+  );
 
-  // only open if there is curtain content and it's height is 0
-  if (curtainContent && curtainContent.offsetHeight === 0) {
+  // only open if we can see the curtain collapsed button
+  if (curtainButtonCollapsed) {
     document.querySelector('button.pp-curtain__btn').click();
   }
 }
@@ -603,16 +605,23 @@ function addChecklistItem() {
 
         if (checklistTool) {
           if (!checklistAddButtonVisible()) {
-            checklistTool
-              .querySelector('.pp-block-tool')
-              .firstElementChild.click();
+            const blockTool = checklistTool.querySelector('.pp-block-tool');
+            if (blockTool) {
+              blockTool.firstElementChild.click();
+            } else {
+              // This should never happen
+              console.error(
+                'Block tool not found for checklist item',
+                checklistTool
+              );
+            }
           }
           checklistTool
             .querySelector('[data-sel-toolname="checklist"]')
             .firstElementChild.firstElementChild.nextElementSibling.click();
         }
       }
-    });
+    }, 300);
   }
 }
 
@@ -671,6 +680,10 @@ function start() {
           // ts for toggle swimlane
           e.preventDefault();
           toggleSwimlane();
+          // since l is taken for navigation, we use al to add list item
+        } else if (prefixKey === 'a' && e.key === 'l') {
+          e.preventDefault();
+          addChecklistItem();
         }
 
         clearPrefixKey();
@@ -683,9 +696,6 @@ function start() {
           // focus search box
           e.preventDefault();
           focusSearchBox();
-        } else if (e.key === 'l') {
-          e.preventDefault();
-          addChecklistItem();
         } else if (e.key === 's') {
           e.preventDefault();
           highlightCardsInViewport();
