@@ -684,6 +684,10 @@ function start() {
         } else if (prefixKey === 'a' && e.key === 'l') {
           e.preventDefault();
           addChecklistItem();
+          // at to add tag
+        } else if (prefixKey === 'a' && e.key === 't') {
+          e.preventDefault();
+          addTag();
         }
 
         clearPrefixKey();
@@ -699,10 +703,6 @@ function start() {
         } else if (e.key === 's') {
           e.preventDefault();
           highlightCardsInViewport();
-          // TODO: don't use 't' for tag since we are using ts for toggle swimlane
-          // } else if (e.key === 't') {
-          // e.preventDefault();
-          // addTag();
         } else if (e.key === 'c') {
           e.preventDefault();
           if (isAnyCardOnPageSelected()) {
