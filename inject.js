@@ -245,7 +245,7 @@ function getColumnNames() {
   return Array.from(document.querySelectorAll('[data-sel-column-header]')).map(
     el => {
       const nameInHeader = el.textContent;
-      const indexOfCount = nameInHeader.search(/\([\d]+\).*$/);
+      const indexOfCount = nameInHeader.search(/\([\d]+(\/[\d]+)?\).*$/);
       return nameInHeader.slice(0, indexOfCount).trim();
     }
   );
