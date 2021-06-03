@@ -471,7 +471,6 @@ function clearPrefixKey() {
 }
 
 function saveAsPrefixKey(key) {
-  console.log('saveAsPrefixKey', key);
   prefixKey = key;
   // clear the prefix key after 2 seconds in case user pressed it by mistake
   setTimeout(clearPrefixKey, 2000);
@@ -640,6 +639,16 @@ function toggleSwimlane() {
   }
 }
 
+function addComment() {
+  if (isAnyCardOnPageSelected()) {
+    const commentInput = document.querySelector('.pp-newpost__textarea');
+
+    if (commentInput) {
+      commentInput.focus();
+    }
+  }
+}
+
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
@@ -673,21 +682,30 @@ function start() {
       } else if (prefixKey !== null) {
         // TODO
         // am -> assign to me
-        if (prefixKey === 'a' && e.key === 'm') {
-          e.preventDefault();
-          assignCardToMe();
+        if (prefixKey === 'a') {
+          switch (e.key) {
+            case 'm':
+              e.preventDefault();
+              assignCardToMe();
+              break;
+            case 'l':
+              e.preventDefault();
+              addChecklistItem();
+              break;
+            case 't':
+              e.preventDefault();
+              addTag();
+              break;
+            case 'c':
+              e.preventDefault();
+              addComment();
+              break;
+          }
         } else if (prefixKey === 't' && e.key === 's') {
           // ts for toggle swimlane
           e.preventDefault();
           toggleSwimlane();
-          // since l is taken for navigation, we use al to add list item
-        } else if (prefixKey === 'a' && e.key === 'l') {
-          e.preventDefault();
-          addChecklistItem();
-          // at to add tag
-        } else if (prefixKey === 'a' && e.key === 't') {
-          e.preventDefault();
-          addTag();
+          // ac for add comment
         }
 
         clearPrefixKey();
@@ -767,7 +785,10 @@ console.log('Awesome extension coming to party!');
 setTimeout(start, 1);
 
 // TODO
-// 1. Adding 'f' which shows all clickable areas like buttons and links on the page
+// - Press '#' to add tag
+// - Press 'ac' to add comment
+// - Press 'f' to show all clickable areas like buttons and links on the page
+// - Raise a PR for boards/SNAP team where i change clickable divs to buttons
 
 // Bugs
 // 1. The up/down arrows don't work across swimlanes

@@ -9,7 +9,8 @@ faster, if you happen to like keyboard shortcuts.
 - Move cards across columns using shift+arrow(left/right) or shift+hl
 - Assign to someone or yourself by pressing @
 - Give points by simply pressing a number
-- Add a checklist item by pressing `al` (mnemonic for "add listitem")
+- `al` to add a checklist item
+- `ac` to add a comment
 - Create card by pressing c
 - Multi select cards using shift+up/down or shift+(jk)
 
