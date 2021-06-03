@@ -1,4 +1,7 @@
 ## Faster card navigation through keyboard shortcuts in projectplace boards
+This is a chrome extension which adds some handy keyboards when working inside
+projectplace boards. The keyboard shortcuts might make your workflow a little
+faster, if you happen to like keyboard shortcuts.
 
 ### What does this extension have?
 - Navigate between cards using arrow keys or ‘hjkl’ keys
