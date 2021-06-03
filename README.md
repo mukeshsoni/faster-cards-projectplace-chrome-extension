@@ -4,11 +4,12 @@ projectplace boards. The keyboard shortcuts might make your workflow a little
 faster, if you happen to like keyboard shortcuts.
 
 ### What does this extension have?
-- Navigate between cards using arrow keys or ‘hjkl’ keys
-- Select any card by pressing s and then pressing any alphabet shown on the cards
-- Move cards across columns using shift+arrow(left/right) or shift+hl
-- Assign to someone or yourself by pressing @
-- Give points by simply pressing a number
+- Navigate between cards using arrow keys or `hjkl` keys
+- Select any card by pressing `s` and then pressing any alphabet shown on the cards
+- Move cards across columns using `shift+arrow(left/right)` or `shift+<hl>`
+- `@` to assign card to someone
+- `am` to assign card to yourself
+- Press any number to give points to a card
 - `al` to add a checklist item
 - `ac` to add a comment
 - `at` to add a tag
