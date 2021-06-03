@@ -661,6 +661,25 @@ function addComment() {
   }
 }
 
+function getClickableItems() {
+  // For now, only highlight stuff inside the board. We only have 26
+  // characters for now.
+  return Array.from(
+    document.querySelector('.boardsContainer').querySelectorAll('a, button')
+  ).filter(elementInViewport);
+}
+
+function highlightClickableItems() {
+  const clickcableItems = getClickableItems();
+
+  const chars = atoz();
+  activeElements = {};
+  clickcableItems.forEach((item, index) => {
+    activeElements[chars[index]] = item;
+    putTextOverEl(item, chars[index]);
+  });
+}
+
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
@@ -726,6 +745,8 @@ function start() {
           // TODO: This interferes with other actions in an indeterministic way. Will switch off for now.
           // e.preventDefault();
           // toggleFilterSection();
+          e.preventDefault();
+          highlightClickableItems();
         } else if (e.key === '/') {
           // focus search box
           e.preventDefault();
