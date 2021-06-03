@@ -11,7 +11,7 @@
         "https://test-se.rnd.projectplace.com/*",
         "https://test-in.rnd.projectplace.com/*"
       ],
-      "js": ["inject.js"]
+      "js": ["content_script.js"]
     }
   ]
 }
