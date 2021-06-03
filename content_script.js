@@ -753,9 +753,12 @@ function start() {
         } else if (e.key === 'ArrowLeft' || e.key === 'h') {
           e.preventDefault();
           selectCardInPreviousColumn();
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          deselectCard();
+          // TODO: Disabling escape to close detailspane for now since it
+          // interferes when escape should only cancel a dropdown or just take
+          // away focus from an input
+          // } else if (e.key === 'Escape') {
+          // e.preventDefault();
+          // deselectCard();
         } else if (e.key === 'Del') {
           e.preventDefault();
           clickDeleteButton();
