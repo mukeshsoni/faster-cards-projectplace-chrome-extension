@@ -11,6 +11,7 @@ faster, if you happen to like keyboard shortcuts.
 - Give points by simply pressing a number
 - `al` to add a checklist item
 - `ac` to add a comment
+- `at` to add a tag
 - Create card by pressing c
 - Multi select cards using shift+up/down or shift+(jk)
 

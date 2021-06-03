@@ -578,8 +578,20 @@ function addTag() {
             const toolAddButton = tagTool.querySelector(
               '[data-sel-btn-add-tag="true"]'
             );
-            toolAddButton.click();
-          }, 200);
+            toolAddButton.focus();
+
+            toolAddButton.dispatchEvent(
+              new KeyboardEvent('keydown', {
+                key: 'Enter',
+                code: 'Enter',
+                // If i don't specify the keyCode, it doesn't work
+                keyCode: 13,
+                // bubbles: true is absolutely essentially if we are working
+                // with react coponents
+                bubbles: true
+              })
+            );
+          }, 100);
         }
       }
     }, 300);
@@ -662,7 +674,7 @@ function start() {
       return;
     }
 
-    // console.log('event', e);
+    console.log('event', e);
     // handle single key strokes, without any modifier keys
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
       // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
@@ -765,6 +777,9 @@ function start() {
       } else if (e.key === 'ArrowRight' || e.key === 'L') {
         e.preventDefault();
         moveCardToNextColumn();
+      } else if (e.key === '#') {
+        e.preventDefault();
+        addTag();
       } else if (e.key === 'ArrowLeft' || e.key === 'H') {
         e.preventDefault();
         moveCardToPrevColumn();
