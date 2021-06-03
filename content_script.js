@@ -560,6 +560,10 @@ function clickDeleteButton() {
   }
 }
 
+function tagAddButtonVisible() {
+  return !!document.querySelector('[data-sel-btn-add-tag="true"]');
+}
+
 function addTag() {
   const detailsPaneWrapper = getDetailsPaneWrapper();
   if (detailsPaneWrapper) {
@@ -573,7 +577,9 @@ function addTag() {
         const tagTool = planletTool.nextElementSibling;
 
         if (tagTool) {
-          tagTool.firstElementChild.click();
+          if (!tagAddButtonVisible()) {
+            tagTool.firstElementChild.click();
+          }
           setTimeout(() => {
             const toolAddButton = tagTool.querySelector(
               '[data-sel-btn-add-tag="true"]'
@@ -693,7 +699,7 @@ function start() {
       return;
     }
 
-    console.log('event', e);
+    // console.log('event', e);
     // handle single key strokes, without any modifier keys
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
       // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
