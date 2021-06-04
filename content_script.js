@@ -691,6 +691,24 @@ function highlightClickableItems() {
   });
 }
 
+function changeTitle() {
+  if (isAnyCardOnPageSelected()) {
+    const titleEditor = document.querySelector('.pp-titleeditor__result');
+    if (titleEditor) {
+      titleEditor.click();
+    }
+  }
+}
+
+function changeDescription() {
+  if (isAnyCardOnPageSelected()) {
+    const descEditor = document.querySelector('.pp-description__result');
+    if (descEditor) {
+      descEditor.click();
+    }
+  }
+}
+
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
@@ -748,6 +766,28 @@ function start() {
           e.preventDefault();
           toggleSwimlane();
           // ac for add comment
+        } else if (prefixKey === 'c') {
+          switch (e.key) {
+            // cc for create card
+            case 'c':
+              e.preventDefault();
+              if (isAnyCardOnPageSelected()) {
+                // TODO: If a card is already selected, press the + button in the same swimlane
+                clickCardCreatorInSelectedCardColumn();
+              } else {
+                highlightCardCreators();
+              }
+              break;
+            // ct for change title
+            case 't':
+              e.preventDefault();
+              changeTitle();
+              break;
+            case 'd':
+              e.preventDefault();
+              changeDescription();
+              break;
+          }
         }
 
         clearPrefixKey();
@@ -765,14 +805,6 @@ function start() {
         } else if (e.key === 's') {
           e.preventDefault();
           highlightCardsInViewport();
-        } else if (e.key === 'c') {
-          e.preventDefault();
-          if (isAnyCardOnPageSelected()) {
-            // TODO: If a card is already selected, press the + button in the same swimlane
-            clickCardCreatorInSelectedCardColumn();
-          } else {
-            highlightCardCreators();
-          }
         } else if (e.key === 'ArrowDown' || e.key === 'j') {
           e.preventDefault();
           selectCardBelowSelectedCard();

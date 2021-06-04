@@ -13,7 +13,9 @@ faster, if you happen to like keyboard shortcuts.
 - `al` to add a checklist item
 - `ac` to add a comment
 - `at` to add a tag
-- `c` to create a card
+- `cc` to create a card
+- `ct` to change title
+- `cd` to change description
 - `ts` to highlight all swimlane headers so to you can toggle them
 - `f` to highlight all links and buttons, i.e. all clickable elements. This one
   is limited to 36 clickable elements for a-z and 0-9.
