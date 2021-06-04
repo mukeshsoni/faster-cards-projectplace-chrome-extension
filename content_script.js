@@ -30,7 +30,7 @@ function inBoardContext() {
 }
 
 function activeElementIsAnInputElement() {
-  const inputElementTagNames = ['INPUT'];
+  const inputElementTagNames = ['INPUT', 'TEXTAREA'];
   return (
     document.activeElement &&
     inputElementTagNames.includes(document.activeElement.tagName)
@@ -672,7 +672,9 @@ function getClickableItems() {
   // characters for now.
   return Array.from(
     document.querySelector('.boardsContainer').querySelectorAll('a, button')
-  ).filter(elementInViewport);
+  )
+    .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
+    .filter(elementInViewport);
 }
 
 function highlightClickableItems() {
