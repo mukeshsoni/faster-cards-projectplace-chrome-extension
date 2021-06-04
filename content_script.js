@@ -88,7 +88,7 @@ function genCharArray(charA, charZ) {
 }
 
 function atoz() {
-  return genCharArray('a', 'z');
+  return genCharArray('a', 'z').concat(genCharArray('0', '9'));
 }
 
 function allCardsOnPage() {
@@ -642,19 +642,19 @@ function addChecklistItem() {
   }
 }
 
+function isSwimlaneHeader(el) {
+  return el && el.classList.contains('print-swimlane-header');
+}
+
 function toggleSwimlane() {
-  // only makes sense if there's some card already selected
-  // TODO: What do we do if we want to open a swimlane
-  if (isAnyCardOnPageSelected()) {
-    const selectedCard = getSelectedCard();
-    const swimlaneEl = findParentBySelector(
-      selectedCard,
-      '[data-sel-swimlane-body]'
-    );
-    if (swimlaneEl) {
-      swimlaneEl.previousElementSibling.click();
-    }
-  }
+  const chars = atoz();
+  const clickcableItems = getClickableItems();
+
+  activeElements = {};
+  clickcableItems.filter(isSwimlaneHeader).forEach((item, index) => {
+    activeElements[chars[index]] = item;
+    putTextOverEl(item, chars[index]);
+  });
 }
 
 function addComment() {
@@ -680,6 +680,9 @@ function getClickableItems() {
 function highlightClickableItems() {
   const clickcableItems = getClickableItems();
 
+  Array.from(document.querySelectorAll('.print-swimlane-header')).forEach(el =>
+    console.log(el.classList)
+  );
   const chars = atoz();
   activeElements = {};
   clickcableItems.forEach((item, index) => {
