@@ -14,7 +14,9 @@ faster, if you happen to like keyboard shortcuts.
 - `ac` to add a comment
 - `at` to add a tag
 - `c` to create a card
-- `f` to highlight all links and buttons, i.e. all clickable elements
+- `ts` to highlight all swimlane headers so to you can toggle them
+- `f` to highlight all links and buttons, i.e. all clickable elements. This one
+  is limited to 36 clickable elements for a-z and 0-9.
 - Multi select cards using shift+up/down or shift+(jk)
 
 To use the extension, clone or download this repository and load it as unpacked extension in chrome.
