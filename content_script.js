@@ -22,13 +22,6 @@ function elementInViewport(el) {
   );
 }
 
-function inBoardContext() {
-  return (
-    document.querySelector('[data-id="boards"]') ||
-    document.querySelector('.boardsContainer')
-  );
-}
-
 function activeElementIsAnInputElement() {
   const inputElementTagNames = ['INPUT', 'TEXTAREA'];
   return (
@@ -680,9 +673,6 @@ function getClickableItems() {
 function highlightClickableItems() {
   const clickcableItems = getClickableItems();
 
-  Array.from(document.querySelectorAll('.print-swimlane-header')).forEach(el =>
-    console.log(el.classList)
-  );
   const chars = atoz();
   activeElements = {};
   clickcableItems.forEach((item, index) => {
@@ -692,31 +682,22 @@ function highlightClickableItems() {
 }
 
 function changeTitle() {
-  if (isAnyCardOnPageSelected()) {
-    const titleEditor = document.querySelector('.pp-titleeditor__result');
-    if (titleEditor) {
-      titleEditor.click();
-    }
+  const titleEditor = document.querySelector('.pp-titleeditor__result');
+  if (titleEditor) {
+    titleEditor.click();
   }
 }
 
 function changeDescription() {
-  if (isAnyCardOnPageSelected()) {
-    const descEditor = document.querySelector('.pp-description__result');
-    if (descEditor) {
-      descEditor.click();
-    }
+  const descEditor = document.querySelector('.pp-description__result');
+  if (descEditor) {
+    descEditor.click();
   }
 }
 
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
-    if (!inBoardContext()) {
-      console.log('Not in board context');
-      return;
-    }
-
     // we don't want to interrupt regular input text
     if (activeElementIsAnInputElement()) {
       return;
