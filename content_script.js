@@ -216,22 +216,21 @@ function getAssigneeDropdownEl() {
 }
 
 function openAssigneeTool() {
+  console.log('open assignee tool');
   let assigneeDropdownEl = getAssigneeDropdownEl();
 
   if (assigneeDropdownEl) {
     assigneeDropdownEl.click();
   } else {
-    if (isAnyCardOnPageSelected()) {
-      // the assignee tool might be hidden in the curtain. open the curtain first
-      // The cruel part is that the stuff inside the curtain is still in DOM and opens up from inside the closed
-      // curtain
-      openCurtain();
-      assigneeDropdownEl = document.querySelector(
-        '[data-sel-toolname="assignee_id"]'
-      );
-      if (assigneeDropdownEl) {
-        assigneeDropdownEl.click();
-      }
+    // the assignee tool might be hidden in the curtain. open the curtain first
+    // The cruel part is that the stuff inside the curtain is still in DOM and opens up from inside the closed
+    // curtain
+    openCurtain();
+    assigneeDropdownEl = document.querySelector(
+      '[data-sel-toolname="assignee_id"]'
+    );
+    if (assigneeDropdownEl) {
+      assigneeDropdownEl.click();
     }
   }
 }
@@ -377,6 +376,10 @@ function selectCardBelowSelectedCard() {
 
   if (nextCard) {
     nextCard.click();
+    nextCard.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
   }
 }
 
@@ -384,6 +387,10 @@ function selectCardAboveSelectedCard() {
   const previousCard = getPrevCard();
   if (previousCard) {
     previousCard.click();
+    previousCard.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
   }
 }
 
@@ -406,6 +413,11 @@ function selectCardInNextColumn() {
       );
       if (firstCardInColumn) {
         firstCardInColumn.firstElementChild.click();
+        firstCardInColumn.firstElementChild.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        });
         break;
       } else {
         nextColumn = nextColumn.nextElementSibling;
@@ -428,6 +440,11 @@ function selectCardInPreviousColumn() {
       );
       if (firstCardInColumn) {
         firstCardInColumn.firstElementChild.click();
+        firstCardInColumn.firstElementChild.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        });
         break;
       } else {
         prevColumn = prevColumn.previousElementSibling;
@@ -661,13 +678,19 @@ function addComment() {
 }
 
 function getClickableItems() {
-  // For now, only highlight stuff inside the board. We only have 26
+  // For now, only highlight stuff inside the board, when in a board. We only have 26
   // characters for now.
-  return Array.from(
-    document.querySelector('.boardsContainer').querySelectorAll('a, button')
-  )
-    .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
-    .filter(elementInViewport);
+  if (document.querySelector('.boardsContainer')) {
+    return Array.from(
+      document.querySelector('.boardsContainer').querySelectorAll('a, button')
+    )
+      .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
+      .filter(elementInViewport);
+  } else {
+    return Array.from(document.querySelectorAll('a, button'))
+      .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
+      .filter(elementInViewport);
+  }
 }
 
 function highlightClickableItems() {
