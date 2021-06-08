@@ -216,7 +216,6 @@ function getAssigneeDropdownEl() {
 }
 
 function openAssigneeTool() {
-  console.log('open assignee tool');
   let assigneeDropdownEl = getAssigneeDropdownEl();
 
   if (assigneeDropdownEl) {
@@ -292,6 +291,8 @@ function selectStatusFromDropdown(columnNameToMoveTo) {
       if (dropdownItemToMoveTo) {
         dropdownItemToMoveTo.click();
       }
+    } else {
+      // let's try opening dropdown once more
     }
   }
 }
@@ -310,7 +311,11 @@ function moveCardToPrevColumn() {
       const columnNameToMoveTo = columnNames[existingColumnIndex - 1];
 
       openColumnSelectorDropdown();
-      selectStatusFromDropdown(columnNameToMoveTo);
+      setTimeout(() => {
+        selectStatusFromDropdown(columnNameToMoveTo);
+        // If i don't put it inside a settimeout, the shift+arrow doesn't work
+        // the first time. Works from then onwards. <shrug />
+      }, 250);
     }
   }
 }
@@ -329,7 +334,11 @@ function moveCardToNextColumn() {
       const columnNameToMoveTo = columnNames[existingColumnIndex + 1];
 
       openColumnSelectorDropdown();
-      selectStatusFromDropdown(columnNameToMoveTo);
+      setTimeout(() => {
+        selectStatusFromDropdown(columnNameToMoveTo);
+        // If i don't put it inside a settimeout, the shift+arrow doesn't work
+        // the first time. Works from then onwards. <shrug />
+      }, 250);
     }
   }
 }
