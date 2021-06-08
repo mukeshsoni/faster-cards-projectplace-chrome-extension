@@ -121,12 +121,12 @@ function putTextOverEl(el, number) {
   const numberEl = document.createElement('div');
   const textSpan = document.createElement('div');
   textSpan.style =
-    'background:rgb(255, 247, 133);padding:2px;color:black;border-width:1px;border-style:solid;border-color:rgb(227, 190, 35);';
+    'background:rgb(255, 247, 133);padding:2px;color:black;border-width:1px;border-style:solid;border-color:rgb(227, 190, 35);opacity:0.8;line-height:1';
   textSpan.innerText = number;
   numberEl.appendChild(textSpan);
-  numberEl.width = width;
-  numberEl.height = height;
-  numberEl.style = `position:absolute;display:flex;justify-content:center;align-items:center;font-size:24px;font-weight:700;color:red;z-index:100;width:${width}px;height:${height}px`;
+  // numberEl.width = width;
+  // numberEl.height = height;
+  numberEl.style = `position:absolute;display:flex;justify-content:center;align-items:center;font-size:20px;font-weight:700;color:red;z-index:100;opactiy:0.5;background:transparent`;
   numberEl.style.top = `${elPos.top}px`;
   numberEl.style.left = `${elPos.left}px`;
   numberEl.setAttribute('data-special-active-element', 'chrome-extension');
@@ -691,7 +691,9 @@ function getClickableItems() {
   // characters for now.
   if (document.querySelector('.boardsContainer')) {
     return Array.from(
-      document.querySelector('.boardsContainer').querySelectorAll('a, button')
+      document
+        .querySelector('.boardsContainer')
+        .querySelectorAll('a, button, [role=button]')
     )
       .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
       .filter(elementInViewport);
