@@ -80,8 +80,33 @@ function genCharArray(charA, charZ) {
   return a;
 }
 
-function atoz() {
-  return genCharArray('a', 'z').concat(genCharArray('0', '9'));
+// copied from vimium -
+// https://github.com/philc/vimium/blob/bdf654aebe6f570f427c5f7bc9592cad86e642b5/lib/settings.js#L181
+// Maybe, a combination of these characters lead to easier keyboard reachability
+const linkHintCharacters = 'sadfjklewcmpgh';
+// copied from vimium -
+// https://github.com/philc/vimium/blob/bdf654aebe6f570f427c5f7bc9592cad86e642b5/content_scripts/link_hints.js#L647
+function getHintStrings(count) {
+  let hints = [''];
+  let offset = 0;
+
+  while (hints.length - offset < count || hints.length === 1) {
+    const hint = hints[offset++];
+    for (let ch of linkHintCharacters) {
+      hints.push(ch + hint);
+    }
+  }
+
+  hints = hints.slice(offset, offset + count);
+
+  // Shuffle the hints so that they're scattered; hints starting with the same character and short hints are
+  // spread evenly throughout the array.
+  return hints.sort().map(str =>
+    str
+      .split('')
+      .reverse()
+      .join('')
+  );
 }
 
 function allCardsOnPage() {
@@ -103,14 +128,7 @@ function isCardElementSelected(cardEl) {
 function highlightCardsInViewport() {
   const cards = cardsInViewport();
 
-  // only highlight cards in viewport
-
-  activeElements = {};
-  const chars = atoz();
-  cards.forEach((cardEl, index) => {
-    activeElements[chars[index]] = cardEl;
-    putTextOverEl(cardEl, chars[index]);
-  });
+  putHintMarkers(cards);
 }
 
 function putTextOverEl(el, number) {
@@ -139,12 +157,7 @@ function highlightCardCreators() {
     document.querySelectorAll('[data-sel-card-creator]')
   ).filter(elementInViewport);
 
-  activeElements = {};
-  const chars = atoz();
-  cardCreatorEls.forEach((cardCreatorEl, index) => {
-    activeElements[chars[index]] = cardCreatorEl;
-    putTextOverEl(cardCreatorEl, chars[index]);
-  });
+  putHintMarkers(cardCreatorEls);
 }
 
 function clearActiveElementOverlays() {
@@ -666,14 +679,9 @@ function isSwimlaneHeader(el) {
 }
 
 function toggleSwimlane() {
-  const chars = atoz();
   const clickcableItems = getClickableItems();
 
-  activeElements = {};
-  clickcableItems.filter(isSwimlaneHeader).forEach((item, index) => {
-    activeElements[chars[index]] = item;
-    putTextOverEl(item, chars[index]);
-  });
+  putHintMarkers(clickcableItems.filter(isSwimlaneHeader));
 }
 
 function addComment() {
@@ -687,32 +695,24 @@ function addComment() {
 }
 
 function getClickableItems() {
-  // For now, only highlight stuff inside the board, when in a board. We only have 26
-  // characters for now.
-  if (document.querySelector('.boardsContainer')) {
-    return Array.from(
-      document
-        .querySelector('.boardsContainer')
-        .querySelectorAll('a, button, [role=button]')
-    )
-      .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
-      .filter(elementInViewport);
-  } else {
-    return Array.from(document.querySelectorAll('a, button'))
-      .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
-      .filter(elementInViewport);
-  }
+  return Array.from(document.querySelectorAll('a, button, [role=button]'))
+    .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
+    .filter(elementInViewport);
+}
+
+function putHintMarkers(els = []) {
+  const hints = getHintStrings(els.length);
+  activeElements = {};
+  els.forEach((item, index) => {
+    activeElements[hints[index]] = item;
+    putTextOverEl(item, hints[index]);
+  });
 }
 
 function highlightClickableItems() {
-  const clickcableItems = getClickableItems();
+  const clickableItems = getClickableItems();
 
-  const chars = atoz();
-  activeElements = {};
-  clickcableItems.forEach((item, index) => {
-    activeElements[chars[index]] = item;
-    putTextOverEl(item, chars[index]);
-  });
+  putHintMarkers(clickableItems);
 }
 
 function changeTitle() {
@@ -743,12 +743,31 @@ function start() {
       // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
       // we don't want the normal key bindings to work
       if (activeElements) {
-        if (activeElements[e.key]) {
-          e.preventDefault();
-          activeElements[e.key].click();
+        let hintString = e.key;
+        if (prefixKey !== null) {
+          hintString = prefixKey + e.key;
         }
 
-        clearActiveElementOverlays();
+        if (activeElements[hintString]) {
+          e.preventDefault();
+          activeElements[hintString].click();
+          clearActiveElementOverlays();
+          clearPrefixKey();
+        } else if (prefixKey === null) {
+          saveAsPrefixKey(e.key);
+          // this is some horrible logic which i won't remember the next day
+          // Need to do something about the combination keys like ab ak etc.
+        } else {
+          clearPrefixKey();
+        }
+
+        // very tricky when to clear overlay elements
+        // we want to definitely do it if user presses escape
+        // Or when we found some activeElement corresponding to hintString
+        // Or if user has already pressed 2 characters
+        if (e.key === 'Escape' || hintString.length === 2) {
+          clearActiveElementOverlays();
+        }
         // if user is trying out some combination keys like `at` or `gi` etc.
         // TODO: Should instead keep every first key in prefixKey and wait for some time for the second key press
         // if nothing comes, try the single key mappings
