@@ -17,8 +17,8 @@ function elementInViewport(el) {
   return (
     top >= window.pageYOffset &&
     left >= window.pageXOffset &&
-    top + height <= window.pageYOffset + window.innerHeight &&
-    left + width <= window.pageXOffset + window.innerWidth
+    top + height > window.pageYOffset &&
+    left + width > window.pageXOffset
   );
 }
 
@@ -695,9 +695,9 @@ function addComment() {
 }
 
 function getClickableItems() {
-  return Array.from(document.querySelectorAll('a, button, [role=button]'))
-    .concat(Array.from(document.querySelectorAll('.print-swimlane-header')))
-    .filter(elementInViewport);
+  return Array.from(
+    document.querySelectorAll('a, button, [role=button]')
+  ).filter(elementInViewport);
 }
 
 function putHintMarkers(els = []) {
@@ -754,7 +754,10 @@ function start() {
           clearActiveElementOverlays();
           clearPrefixKey();
         } else if (prefixKey === null) {
-          saveAsPrefixKey(e.key);
+          // we don't want to use saveAsPrefixKey because we don't want to
+          // clear the prefix key after 2 seconds or whatever time we clear it
+          // after
+          prefixKey = e.key;
           // this is some horrible logic which i won't remember the next day
           // Need to do something about the combination keys like ab ak etc.
         } else {
