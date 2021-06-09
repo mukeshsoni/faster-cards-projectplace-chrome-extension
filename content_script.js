@@ -131,25 +131,29 @@ function highlightCardsInViewport() {
   putHintMarkers(cards);
 }
 
-function putTextOverEl(el, number) {
+function putTextOverEl(el, text, prefix = '') {
   const elPos = getElementPos(el);
-  const width = el.offsetWidth;
-  const height = el.offsetHeight;
 
-  const numberEl = document.createElement('div');
-  const textSpan = document.createElement('div');
-  textSpan.style =
-    'background:rgb(255, 247, 133);padding:2px;color:black;border-width:1px;border-style:solid;border-color:rgb(227, 190, 35);opacity:0.8;line-height:1';
-  textSpan.innerText = number;
-  numberEl.appendChild(textSpan);
-  // numberEl.width = width;
-  // numberEl.height = height;
-  numberEl.style = `position:absolute;display:flex;justify-content:center;align-items:center;font-size:20px;font-weight:700;color:red;z-index:100;opactiy:0.5;background:transparent`;
-  numberEl.style.top = `${elPos.top}px`;
-  numberEl.style.left = `${elPos.left}px`;
-  numberEl.setAttribute('data-special-active-element', 'chrome-extension');
+  const hintTextContainer = document.createElement('div');
+  const textSpans = text.split('').map((char, index) => {
+    const textSpan = document.createElement('span');
+    textSpan.innerText = char;
+    // we kind of dim the selected character in the hint string
+    if (index === 0 && char === prefix) {
+      textSpan.style = 'opacity:0.4';
+    }
+    return textSpan;
+  });
+  textSpans.forEach(textSpan => hintTextContainer.appendChild(textSpan));
+  hintTextContainer.style = `background:rgb(255, 247, 133);padding:2px;color:black;border-width:1px;border-style:solid;border-color:rgb(227, 190, 35);opacity:0.8;line-height:1;position:absolute;display:flex;justify-content:center;align-items:center;font-size:20px;font-weight:700;z-index:100;opactiy:0.5;`;
+  hintTextContainer.style.top = `${elPos.top}px`;
+  hintTextContainer.style.left = `${elPos.left}px`;
+  hintTextContainer.setAttribute(
+    'data-special-active-element',
+    'chrome-extension'
+  );
 
-  document.body.appendChild(numberEl);
+  document.body.appendChild(hintTextContainer);
 }
 
 function highlightCardCreators() {
@@ -729,6 +733,22 @@ function changeDescription() {
   }
 }
 
+function rehighlightActiveElements(prefixKey = '') {
+  const oldActiveElements = { ...activeElements };
+  if (prefixKey && activeElements) {
+    clearActiveElementOverlays();
+    activeElements = Object.fromEntries(
+      Object.entries(oldActiveElements).filter(([k, _]) =>
+        k.startsWith(prefixKey)
+      )
+    );
+
+    Object.entries(activeElements).forEach(([k, v]) => {
+      putTextOverEl(v, k, prefixKey);
+    });
+  }
+}
+
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
@@ -758,6 +778,8 @@ function start() {
           // clear the prefix key after 2 seconds or whatever time we clear it
           // after
           prefixKey = e.key;
+          rehighlightActiveElements(prefixKey);
+
           // this is some horrible logic which i won't remember the next day
           // Need to do something about the combination keys like ab ak etc.
         } else {
