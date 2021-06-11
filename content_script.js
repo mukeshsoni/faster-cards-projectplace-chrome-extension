@@ -131,7 +131,7 @@ function highlightCardsInViewport() {
   putHintMarkers(cards);
 }
 
-function putTextOverEl(el, text, prefix = '') {
+function putTextOverEl(el, text, hintString = '') {
   const elPos = getElementPos(el);
 
   const hintTextContainer = document.createElement('div');
@@ -139,7 +139,7 @@ function putTextOverEl(el, text, prefix = '') {
     const textSpan = document.createElement('span');
     textSpan.innerText = char;
     // we kind of dim the selected character in the hint string
-    if (index === 0 && char === prefix) {
+    if (hintString && hintString.startsWith(text.slice(0, index + 1))) {
       textSpan.style = 'opacity:0.4';
     }
     return textSpan;
@@ -733,20 +733,24 @@ function changeDescription() {
   }
 }
 
-function rehighlightActiveElements(prefixKey = '') {
+function rehighlightActiveElements(hintString = '') {
   const oldActiveElements = { ...activeElements };
-  if (prefixKey && activeElements) {
+  if (hintString && activeElements) {
     clearActiveElementOverlays();
     activeElements = Object.fromEntries(
       Object.entries(oldActiveElements).filter(([k, _]) =>
-        k.startsWith(prefixKey)
+        k.startsWith(hintString)
       )
     );
 
     Object.entries(activeElements).forEach(([k, v]) => {
-      putTextOverEl(v, k, prefixKey);
+      putTextOverEl(v, k, hintString);
     });
   }
+}
+
+function activeElementsHaveHintString(activeElements, hintString) {
+  return Object.keys(activeElements).some(key => key.startsWith(hintString));
 }
 
 function start() {
@@ -757,40 +761,37 @@ function start() {
       return;
     }
 
-    // console.log('event', e);
     // handle single key strokes, without any modifier keys
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
       // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
       // we don't want the normal key bindings to work
       if (activeElements) {
-        let hintString = e.key;
-        if (prefixKey !== null) {
-          hintString = prefixKey + e.key;
-        }
+        const hintString = prefixKey ? `${prefixKey}${e.key}` : e.key;
 
         if (activeElements[hintString]) {
           e.preventDefault();
           activeElements[hintString].click();
           clearActiveElementOverlays();
           clearPrefixKey();
-        } else if (prefixKey === null) {
+        } else if (activeElementsHaveHintString(activeElements, hintString)) {
           // we don't want to use saveAsPrefixKey because we don't want to
           // clear the prefix key after 2 seconds or whatever time we clear it
           // after
-          prefixKey = e.key;
-          rehighlightActiveElements(prefixKey);
+          prefixKey = prefixKey ? `${prefixKey}${e.key}` : e.key;
+          rehighlightActiveElements(hintString);
 
           // this is some horrible logic which i won't remember the next day
           // Need to do something about the combination keys like ab ak etc.
         } else {
           clearPrefixKey();
+          clearActiveElementOverlays();
         }
 
         // very tricky when to clear overlay elements
         // we want to definitely do it if user presses escape
         // Or when we found some activeElement corresponding to hintString
         // Or if user has already pressed 2 characters
-        if (e.key === 'Escape' || hintString.length === 2) {
+        if (e.key === 'Escape') {
           clearActiveElementOverlays();
         }
         // if user is trying out some combination keys like `at` or `gi` etc.
