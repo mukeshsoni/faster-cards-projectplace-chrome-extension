@@ -137,7 +137,7 @@ function putTextOverEl(el, text, hintString = '') {
   const hintTextContainer = document.createElement('div');
   const textSpans = text.split('').map((char, index) => {
     const textSpan = document.createElement('span');
-    textSpan.innerText = char;
+    textSpan.innerText = char.toUpperCase();
     // we kind of dim the selected character in the hint string
     if (hintString && hintString.startsWith(text.slice(0, index + 1))) {
       textSpan.style = 'opacity:0.4';
@@ -145,7 +145,7 @@ function putTextOverEl(el, text, hintString = '') {
     return textSpan;
   });
   textSpans.forEach(textSpan => hintTextContainer.appendChild(textSpan));
-  hintTextContainer.style = `background:rgb(255, 247, 133);padding:2px;color:black;border-width:1px;border-style:solid;border-color:rgb(227, 190, 35);opacity:0.8;line-height:1;position:absolute;display:flex;justify-content:center;align-items:center;font-size:20px;font-weight:700;z-index:100;opactiy:0.5;`;
+  hintTextContainer.style = `background:rgb(255, 247, 133);padding:2px;color:black;border-width:1px;border-style:solid;border-color:rgb(227, 190, 35);opacity:0.8;line-height:1;position:absolute;display:flex;justify-content:center;align-items:center;font-size:14px;font-weight:700;z-index:100;opactiy:0.5;`;
   hintTextContainer.style.top = `${elPos.top}px`;
   hintTextContainer.style.left = `${elPos.left}px`;
   hintTextContainer.setAttribute(
