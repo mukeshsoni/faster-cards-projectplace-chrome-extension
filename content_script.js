@@ -753,6 +753,29 @@ function activeElementsHaveHintString(activeElements, hintString) {
   return Object.keys(activeElements).some(key => key.startsWith(hintString));
 }
 
+function clickDelete() {
+  const menu = document.querySelector('.dp-section--consistent__menu');
+  if (menu) {
+    const menuButton = menu.querySelector('.pp-dropdown__trigger');
+    menuButton.click();
+
+    const dropdownContent = menu.querySelector('.pp-dropdown__content');
+    if (dropdownContent) {
+      const accordionItems = Array.from(
+        dropdownContent.querySelectorAll('.pp-accordion__item')
+      );
+      const deleteItem = accordionItems.find(item =>
+        item.querySelector('.pp-btn--delete')
+      );
+
+      if (deleteItem) {
+        deleteItem?.querySelector('.pp-accordion__trigger').click();
+        deleteItem.querySelector('.pp-btn--delete').focus();
+      }
+    }
+  }
+}
+
 function start() {
   console.log('start');
   document.addEventListener('keydown', e => {
@@ -761,6 +784,7 @@ function start() {
       return;
     }
 
+    console.log('key', e);
     // handle single key strokes, without any modifier keys
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
       // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
@@ -852,7 +876,10 @@ function start() {
 
         clearPrefixKey();
       } else {
-        if (e.key === 'f') {
+        if (e.key === 'Delete') {
+          e.preventDefault();
+          clickDelete();
+        } else if (e.key === 'f') {
           // TODO: This interferes with other actions in an indeterministic way. Will switch off for now.
           // e.preventDefault();
           // toggleFilterSection();
@@ -919,6 +946,9 @@ function start() {
         e.preventDefault();
         handleMultiSelection(e);
       }
+    } else if (e.metaKey && e.key === 'Backspace') {
+      e.preventDefault();
+      clickDelete();
     }
   });
 }
