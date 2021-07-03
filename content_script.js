@@ -164,6 +164,16 @@ function highlightCardCreators() {
   putHintMarkers(cardCreatorEls);
 }
 
+function clearModal() {
+  const modalClass = 'faster-cards-modal';
+  const modal = document.querySelector(`.${modalClass}`);
+  if (modal) {
+    const closeButton = modal.querySelector('button.faster-cards-close-button');
+    closeButton.removeEventListener('click', clearModal);
+    modal.remove();
+  }
+}
+
 function clearActiveElementOverlays() {
   activeElements = null;
   Array.from(
@@ -173,6 +183,11 @@ function clearActiveElementOverlays() {
   ).forEach(activeEl => {
     activeEl.remove();
   });
+}
+
+function clearStuff() {
+  clearActiveElementOverlays();
+  clearModal();
 }
 
 function isAnyCardOnPageSelected() {
@@ -791,17 +806,84 @@ function clickDelete() {
   }
 }
 
+function showHelp() {
+  const modalClass = 'faster-cards-modal';
+  if (document.querySelector(`.${modalClass}`)) {
+    return;
+  }
+
+  const helpTextBulletPoints = [
+    'Navigate between cards using arrow keys or `hjkl` keys',
+    'Select any card by pressing `s` and then pressing any alphabet shown on the cards',
+    'Move cards across columns using `shift+arrow(left/right)` or `shift+<hl>`',
+    '`@` to assign card to someone',
+    '`am` to assign card to yourself',
+    'Press any number to give points to a card',
+    '`Del` or `Cmd+backspace` to open delete confirmation',
+    '`Cmd+d` or `ctrl+d` to duplicate a card',
+    '`al` to add a checklist item',
+    '`ac` to add a comment',
+    '`at` to add a tag',
+    '`cc` to create a card',
+    '`ct` to change title',
+    '`cd` to change description',
+    '`ts` to highlight all swimlane headers so to you can toggle them',
+    '`f` to highlight all links and buttons, i.e. all clickable elements. This one',
+    'is limited to 36 clickable elements for a-z and 0-9.',
+    '`Escape` to get rid of link hints. `ctrl+[` is alias for `Escape`.',
+    'Multi select cards using shift+up/down or shift+(jk)'
+  ];
+
+  const container = document.createElement('div');
+  container.classList.add(modalClass);
+  container.style = `position: absolute; z-index: 100; width: 100%; height: 100%; display: flex; align-items: center; background: transparent; top: 0;`;
+
+  const modalContentContainer = document.createElement('div');
+  modalContentContainer.style = `margin: auto; background: white;`;
+  const heading = document.createElement('h2');
+  heading.style = `flex: 1; text-align: center;`;
+  heading.textContent = 'Faster cards keyboard shortcuts';
+  const topBar = document.createElement('div');
+  topBar.style = `display: flex; justify-content: space-between; margin-bottom: 10px; padding: 5px 25px;`;
+  topBar.appendChild(heading);
+  modalContentContainer.appendChild(topBar);
+  const closeButton = document.createElement('button');
+  closeButton.classList.add('faster-cards-close-button');
+  closeButton.style = `background: transparent; border: none; font-size: 3rem; color: #555; transform: rotate(45deg);`;
+  closeButton.textContent = '+';
+  closeButton.addEventListener('click', clearModal);
+  topBar.appendChild(closeButton);
+  const helpListContainer = document.createElement('ul');
+  helpListContainer.style = `padding: 5px 24px;`;
+  helpTextBulletPoints.forEach(text => {
+    const textElement = document.createElement('li');
+    textElement.style = `margin-bottom: 10px; font-size: 1.5rem; list-style: disc; margin-left: 15px;`;
+    textElement.textContent = text;
+    helpListContainer.appendChild(textElement);
+  });
+  modalContentContainer.appendChild(helpListContainer);
+  const modalClosingHint = document.createElement('h3');
+  modalClosingHint.style = `margin-top: 10px; margin-left: 20px;`;
+  modalClosingHint.textContent = 'Press Escape to close this help modal';
+  modalContentContainer.appendChild(modalClosingHint);
+  container.appendChild(modalContentContainer);
+  document.body.appendChild(container);
+}
+
 function start() {
-  console.log('start');
   document.addEventListener('keydown', e => {
     // we don't want to interrupt regular input text
     if (activeElementIsAnInputElement()) {
       return;
     }
 
-    console.log('key', e);
+    // console.log('key', e);
     // handle single key strokes, without any modifier keys
     if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+      if (e.key === 'Escape') {
+        clearStuff();
+        return;
+      }
       // if there are some hot elements hwich are ready to be clicked, like + buttons after pressing c,
       // we don't want the normal key bindings to work
       if (activeElements) {
@@ -831,7 +913,7 @@ function start() {
         // Or when we found some activeElement corresponding to hintString
         // Or if user has already pressed 2 characters
         if (e.key === 'Escape') {
-          clearActiveElementOverlays();
+          clearStuff();
         }
         // if user is trying out some combination keys like `at` or `gi` etc.
         // TODO: Should instead keep every first key in prefixKey and wait for some time for the second key press
@@ -960,6 +1042,9 @@ function start() {
       ) {
         e.preventDefault();
         handleMultiSelection(e);
+      } else if (e.key === '?') {
+        e.preventDefault();
+        showHelp();
       }
     } else if (e.metaKey && e.key === 'Backspace') {
       e.preventDefault();
@@ -968,20 +1053,12 @@ function start() {
       e.preventDefault();
       clickDuplicateMenuItem();
     } else if (e.ctrlKey && e.key === '[') {
-      clearActiveElementOverlays();
+      clearStuff();
     }
   });
 }
 
-console.log('Awesome extension coming to party!');
 setTimeout(start, 1);
-
-// TODO
-// - Press '#' to add tag
-// - Press 'ac' to add comment
-// - Press 'f' to show all clickable areas like buttons and links on the page
-// - Raise a PR for boards/SNAP team where i change clickable divs to buttons
 
 // Bugs
 // 1. The up/down arrows don't work across swimlanes
-// 2. The right/left arrows don't work when they come across an empty column
