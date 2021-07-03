@@ -10,6 +10,8 @@ faster, if you happen to like keyboard shortcuts.
 - `@` to assign card to someone
 - `am` to assign card to yourself
 - Press any number to give points to a card
+- `Del` or `Cmd+backspace` to open delete confirmation
+- `Cmd+d` or `ctrl+d` to duplicate a card
 - `al` to add a checklist item
 - `ac` to add a comment
 - `at` to add a tag
@@ -19,6 +21,7 @@ faster, if you happen to like keyboard shortcuts.
 - `ts` to highlight all swimlane headers so to you can toggle them
 - `f` to highlight all links and buttons, i.e. all clickable elements. This one
   is limited to 36 clickable elements for a-z and 0-9.
+- `Escape` to get rid of link hints. `ctrl+[` is alias for `Escape`.
 - Multi select cards using shift+up/down or shift+(jk)
 
 To use the extension, clone or download this repository and load it as unpacked extension in chrome.
