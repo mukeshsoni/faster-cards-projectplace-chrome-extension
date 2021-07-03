@@ -753,7 +753,7 @@ function activeElementsHaveHintString(activeElements, hintString) {
   return Object.keys(activeElements).some(key => key.startsWith(hintString));
 }
 
-function clickDelete() {
+function getMoreMenuItems() {
   const menu = document.querySelector('.dp-section--consistent__menu');
   if (menu) {
     const menuButton = menu.querySelector('.pp-dropdown__trigger');
@@ -761,18 +761,33 @@ function clickDelete() {
 
     const dropdownContent = menu.querySelector('.pp-dropdown__content');
     if (dropdownContent) {
-      const accordionItems = Array.from(
+      const dropdownItems = Array.from(
         dropdownContent.querySelectorAll('.pp-accordion__item')
       );
-      const deleteItem = accordionItems.find(item =>
-        item.querySelector('.pp-btn--delete')
-      );
-
-      if (deleteItem) {
-        deleteItem?.querySelector('.pp-accordion__trigger').click();
-        deleteItem.querySelector('.pp-btn--delete').focus();
-      }
+      return dropdownItems;
     }
+  }
+  return [];
+}
+
+function clickDuplicateMenuItem() {
+  const dropdownItems = getMoreMenuItems();
+  const duplicateCardItem = dropdownItems.find(item =>
+    item.textContent.includes('Duplicate')
+  );
+  if (duplicateCardItem) {
+    duplicateCardItem.querySelector('.pp-accordion__trigger').click();
+  }
+}
+
+function clickDelete() {
+  const dropdownItems = getMoreMenuItems();
+  const deleteItem = dropdownItems.find(item =>
+    item.textContent.includes('Delete')
+  );
+  if (deleteItem) {
+    deleteItem.querySelector('.pp-accordion__trigger').click();
+    deleteItem.querySelector('.pp-btn--delete').focus();
   }
 }
 
@@ -949,6 +964,11 @@ function start() {
     } else if (e.metaKey && e.key === 'Backspace') {
       e.preventDefault();
       clickDelete();
+    } else if (e.metaKey && e.key === 'd') {
+      e.preventDefault();
+      clickDuplicateMenuItem();
+    } else if (e.ctrlKey && e.key === '[') {
+      clearActiveElementOverlays();
     }
   });
 }
